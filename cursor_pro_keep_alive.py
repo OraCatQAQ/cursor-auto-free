@@ -399,7 +399,25 @@ def print_end_message():
     )
 
 
-if __name__ == "__main__":
+# 全局变量定义
+login_url = "https://authenticator.cursor.sh"
+sign_up_url = "https://authenticator.cursor.sh/sign-up"
+settings_url = "https://www.cursor.com/settings"
+mail_url = "https://tempmail.plus"
+
+# 全局变量 - 账号信息
+account = None
+password = None
+first_name = None
+last_name = None
+email_handler = None
+auto_update_cursor_auth = True
+
+def main_process():
+    """主程序流程，可供外部调用"""
+    global login_url, sign_up_url, settings_url, mail_url
+    global account, password, first_name, last_name, email_handler, auto_update_cursor_auth
+    
     print_logo()
     greater_than_0_45 = check_cursor_version()
     browser_manager = None
@@ -427,7 +445,7 @@ if __name__ == "__main__":
             reset_machine_id(greater_than_0_45)
             logging.info("机器码重置完成")
             print_end_message()
-            sys.exit(0)
+            return
 
         logging.info("正在初始化浏览器...")
 
@@ -448,14 +466,8 @@ if __name__ == "__main__":
 
         logging.info("正在初始化邮箱验证模块...")
         email_handler = EmailVerificationHandler()
-        logging.info(
-            "请前往开源项目查看更多信息：https://github.com/chengazhen/cursor-auto-free"
-        )
+        logging.info("请前往开源项目查看更多信息：https://github.com/chengazhen/cursor-auto-free")
         logging.info("\n=== 配置信息 ===")
-        login_url = "https://authenticator.cursor.sh"
-        sign_up_url = "https://authenticator.cursor.sh/sign-up"
-        settings_url = "https://www.cursor.com/settings"
-        mail_url = "https://tempmail.plus"
 
         logging.info("正在生成随机账号信息...")
         email_generator = EmailGenerator()
@@ -465,10 +477,8 @@ if __name__ == "__main__":
         last_name = email_generator.default_last_name
 
         logging.info(f"生成的邮箱账号: {account}")
-        auto_update_cursor_auth = True
 
         tab = browser.latest_tab
-
         tab.run_js("try { turnstile.reset() } catch(e) { }")
 
         logging.info("\n=== 开始注册流程 ===")
@@ -496,9 +506,11 @@ if __name__ == "__main__":
     except Exception as e:
         logging.error(f"程序执行出现错误: {str(e)}")
         import traceback
-
         logging.error(traceback.format_exc())
     finally:
         if browser_manager:
             browser_manager.quit()
-        input("\n程序执行完毕，按回车键退出...")
+
+if __name__ == "__main__":
+    main_process()
+    input("\n程序执行完毕，按回车键退出...")
